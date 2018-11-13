@@ -1,0 +1,242 @@
+version: "3"
+
+services:
+
+  eos-keosd:
+    image: eosio/eos:v1.2.2
+    command: keosd --wallet-dir /opt/eosio/wallet --http-server-address=0.0.0.0:8899 --http-alias=localhost:8899 --http-alias=keosd:8899
+    hostname: keosd
+    volumes:
+      - ./eos/wallet:/opt/eosio/wallet
+    ports:
+      - "8899:8899"
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.99'
+
+  eos-main-node:
+    image: eosio/eos-dev:v1.2.2 
+    command: nodeos --enable-stale-production --producer-name eosio --max-transaction-time=250 --plugin eosio::http_plugin --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8888 --http-validate-host false --config-dir /mnt/dev/config --data-dir /mnt/dev/data --contracts-console
+    ports:
+      - "8888:8888"
+      - "9876:9876"
+    volumes:
+      - ./eos/nodeos1/data:/mnt/dev/data
+      - ./eos/nodeos1/config:/mnt/dev/config
+      - ./eos/contracts/fifaworldcup:/contracts/fifaworldcup
+      - ./eos/keystore:/mnt/dev/keystore
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.10'
+    depends_on:
+      - eos-keosd
+
+  eos-node_a:
+    image: eosio/eos:v1.2.2 
+    command: nodeos --producer-name nodea --max-transaction-time=250 --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8889 --p2p-listen-endpoint 0.0.0.0:9877 --p2p-peer-address 172.15.0.10:9876 --p2p-peer-address 172.15.0.12:9878 --p2p-peer-address 172.15.0.13:9879 --p2p-peer-address 172.15.0.14:9880 --p2p-peer-address 172.15.0.15:9881 --p2p-peer-address 172.15.0.16:9882 --config-dir /mnt/dev/config --data-dir /mnt/dev/data --http-validate-host false --signature-provider $NODE_a_KEY
+    ports:
+      - "8889:8889"
+      - "9877:9877"
+    volumes:
+      - ./eos/nodeos_a/data:/mnt/dev/data
+      - ./eos/nodeos_a/config:/mnt/dev/config
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.11'
+    environment:
+      - NODE_a_KEY
+
+  eos-node_b:
+    image: eosio/eos:v1.2.2 
+    command: nodeos --producer-name nodeb --max-transaction-time=250 --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8890 --p2p-listen-endpoint 0.0.0.0:9878 --p2p-peer-address 172.15.0.10:9876 --p2p-peer-address 172.15.0.11:9877 --p2p-peer-address 172.15.0.13:9879 --p2p-peer-address 172.15.0.14:9880 --p2p-peer-address 172.15.0.15:9881 --p2p-peer-address 172.15.0.16:9882 --config-dir /mnt/dev/config --data-dir /mnt/dev/data --http-validate-host false --signature-provider $NODE_b_KEY
+    ports:
+      - "8890:8890"
+      - "9878:9878"
+    volumes:
+      - ./eos/nodeos_b/data:/mnt/dev/data
+      - ./eos/nodeos_b/config:/mnt/dev/config
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.12'
+    environment:
+      - NODE_b_KEY
+
+  eos-node_c:
+    image: eosio/eos:v1.2.2 
+    command: nodeos --producer-name nodec --max-transaction-time=250 --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8891 --p2p-listen-endpoint 0.0.0.0:9879 --p2p-peer-address 172.15.0.10:9876 --p2p-peer-address 172.15.0.11:9877 --p2p-peer-address 172.15.0.12:9878 --p2p-peer-address 172.15.0.14:9880 --p2p-peer-address 172.15.0.15:9881 --p2p-peer-address 172.15.0.16:9882 --config-dir /mnt/dev/config --data-dir /mnt/dev/data --http-validate-host false --signature-provider $NODE_c_KEY
+    ports:
+      - "8891:8891"
+      - "9879:9879"
+    volumes:
+      - ./eos/nodeos_c/data:/mnt/dev/data
+      - ./eos/nodeos_c/config:/mnt/dev/config
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.13'
+    environment:
+      - NODE_c_KEY
+
+  eos-node_d:
+    image: eosio/eos:v1.2.2 
+    command: nodeos --producer-name noded --max-transaction-time=250 --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8892 --p2p-listen-endpoint 0.0.0.0:9880 --p2p-peer-address 172.15.0.10:9876 --p2p-peer-address 172.15.0.11:9877 --p2p-peer-address 172.15.0.12:9878 --p2p-peer-address 172.15.0.13:9879 --p2p-peer-address 172.15.0.15:9881 --p2p-peer-address 172.15.0.16:9882 --config-dir /mnt/dev/config --data-dir /mnt/dev/data --http-validate-host false --signature-provider $NODE_d_KEY
+    ports:
+      - "8892:8892"
+      - "9880:9880"
+    volumes:
+      - ./eos/nodeos_d/data:/mnt/dev/data
+      - ./eos/nodeos_d/config:/mnt/dev/config
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.14'
+    environment:
+      - NODE_d_KEY
+
+  eos-node_e:
+    image: eosio/eos:v1.2.2 
+    command: nodeos --producer-name nodee --max-transaction-time=250 --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8893 --p2p-listen-endpoint 0.0.0.0:9881 --p2p-peer-address 172.15.0.10:9876 --p2p-peer-address 172.15.0.11:9877 --p2p-peer-address 172.15.0.12:9878 --p2p-peer-address 172.15.0.13:9879 --p2p-peer-address 172.15.0.14:9880 --p2p-peer-address 172.15.0.16:9882 --config-dir /mnt/dev/config --data-dir /mnt/dev/data --http-validate-host false --signature-provider $NODE_e_KEY
+    ports:
+      - "8893:8893"
+      - "9881:9881"
+    volumes:
+      - ./eos/nodeos_e/data:/mnt/dev/data
+      - ./eos/nodeos_e/config:/mnt/dev/config
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.15'
+    environment:
+      - NODE_e_KEY
+
+  eos-node_f:
+    image: eosio/eos:v1.2.2 
+    command: nodeos --producer-name nodef --max-transaction-time=250 --plugin eosio::chain_api_plugin --plugin eosio::net_api_plugin --plugin eosio::history_plugin --plugin eosio::history_api_plugin --filter-on=* --http-server-address 0.0.0.0:8894 --p2p-listen-endpoint 0.0.0.0:9882 --p2p-peer-address 172.15.0.10:9876 --p2p-peer-address 172.15.0.11:9877 --p2p-peer-address 172.15.0.12:9878 --p2p-peer-address 172.15.0.13:9879 --p2p-peer-address 172.15.0.14:9880 --p2p-peer-address 172.15.0.15:9881 --config-dir /mnt/dev/config --data-dir /mnt/dev/data --http-validate-host false --signature-provider $NODE_e_KEY
+    ports:
+      - "8894:8894"
+      - "9882:9882"
+    volumes:
+      - ./eos/nodeos_f/data:/mnt/dev/data
+      - ./eos/nodeos_f/config:/mnt/dev/config
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.16'
+    environment:
+      - NODE_f_KEY
+
+  blocker-main-node:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3001:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.10:8888
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.101'
+  
+  blocker-node_a:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3002:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.11:8889
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.102'
+
+  blocker-node_b:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3003:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.12:8890
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.103'
+  
+  blocker-node_c:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3004:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.13:8891
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.104'
+
+  blocker-node_d:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3005:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.14:8892
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.105'
+  
+  blocker-node_e:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3006:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.15:8893
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.106'
+  
+  blocker-node_f:
+    build:
+      context: ./blocker
+      args:
+        - NODE_ENV=development
+    command: bash -c "../node_modules/.bin/nodemon"
+    ports:
+      - "3007:80"
+    volumes:
+      - ./blocker:/opt/app
+    environment:
+      - EOS_NODE_URL=http://172.15.0.16:8894
+    networks:
+      eos_net:
+        ipv4_address: '172.15.0.107'
+
+networks:
+  eos_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.15.0.0/16

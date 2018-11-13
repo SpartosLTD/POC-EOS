@@ -1,0 +1,21 @@
+node_modules
+*.log
+*.env
+
+# EOS Specific
+/eos/nodeos*
+/eos/keystore
+/eos/wallet
+/eos/contracts/fifaworldcup/fifaworldcup.abi
+/eos/contracts/fifaworldcup/fifaworldcup.w*
+/eos/contracts/eosiolib
+/eos/contracts/libc++
+/eos/contracts/musl
+/eos/contracts/boost
+
+# Test Specific
+/test/transaction-list/index.csv
+/test/transaction-list/error.csv
+/test/transaction-list/transactions/
+
+*.jtl

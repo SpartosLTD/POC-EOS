@@ -1,0 +1,23 @@
+{
+  "name": "blocker",
+  "version": "0.0.1",
+  "private": true,
+  "description": "EOS blocker to return a response when a transaction is in a block",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "1.18.3",
+    "eosjs" : "16.0.6",
+    "express" : "4.16.3"
+  },
+  "devDependencies": {
+    "nodemon" : "1.18.3"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon"
+  },
+  "engines": {
+    "node": "8.6.0",
+    "npm": "5.3.0"
+  }
+}

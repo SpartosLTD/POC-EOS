@@ -1,0 +1,29 @@
+{
+  "compression": "none",
+  "transaction": {
+    "expiration": "2018-09-18T16:00:16",
+    "ref_block_num": 9448,
+    "ref_block_prefix": 4261080068,
+    "max_net_usage_words": 0,
+    "max_cpu_usage_ms": 0,
+    "delay_sec": 0,
+    "context_free_actions": [],
+    "actions": [
+      {
+        "account": "spartosbet",
+        "name": "bet",
+        "authorization": [
+          {
+            "actor": "sra",
+            "permission": "active"
+          }
+        ],
+        "data": "000000000000ccc56400000000000000045359530000000000"
+      }
+    ],
+    "transaction_extensions": []
+  },
+  "signatures": [
+    "SIG_K1_KkoFQKAkJGusLphuaxxpKxBAcyHZaaBudsriMMWQ6HaDbKzdCi3HV714mrwHCCKDa1wFcuwHu9odhWXZMjABYQvd3skT8B"
+  ]
+}

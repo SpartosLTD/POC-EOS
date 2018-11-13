@@ -1,0 +1,121 @@
+#!/usr/bin/env node
+const program = require('commander');
+const fs = require('fs');
+
+const { fork } = require('child_process');
+
+program
+  .version('0.0.1')
+  .option('-k, --key <key>', 'Set private key for signing')
+  .option('-b, --batch-amount <amount>', 'Set amount for batching')
+  .option('-n, --number-of-transactions <number>', 'Set number of transactions to build')
+  .option('-u, --url <http endpoint>', 'Set the EOS node http endpoint (full URL including port: http://127.0.0.1:8888)')
+  .option('-o, --output-folder <location>', 'Set output folder location')
+  .option('-v, --verbose', 'Enable verbose output of EOS api')
+  .option('-a, --account <account>', 'Set the account to be used on the transaction' )
+  .parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.help();
+}
+
+let insufficientArgs = false;
+if (typeof program.key === 'undefined') {
+  console.error('You must set --key (or -k)');
+  insufficientArgs = true;
+}
+if (typeof program.numberOfTransactions === 'undefined') {
+  console.error('You must set --number-of-transactions (or -n)');
+  insufficientArgs = true;
+}
+if (typeof program.url === 'undefined') {
+  console.error('You must set --url (or -u)');
+  insufficientArgs = true;
+}
+if (typeof program.outputFolder === 'undefined') {
+  console.error('You must set --output-file (or -o)');
+  insufficientArgs = true;
+}
+if (typeof program.batchAmount === 'undefined') {
+  console.error('You must set --batch-amount (or -b)');
+  insufficientArgs = true;
+}
+if (typeof program.account === 'undefined') {
+  console.error('You must set --account (or -a)');
+  insufficientArgs = true;
+}
+
+if (insufficientArgs) {
+  process.exit(1);
+}
+
+if (!fs.existsSync(program.outputFolder)) {
+  fs.mkdirSync(program.outputFolder);
+}
+
+let done = 0;
+
+let outputNumbers = "";
+let errorNumbers = "";
+
+let batchNumber = parseInt(program.batchAmount);
+
+function doIt(i) {
+  console.log(`i = ${i}`);
+  if (i >= program.numberOfTransactions) {
+    return;
+  }
+
+  for (let j = 0; j < batchNumber; j++) {
+    let number = j + i;
+    fork('transaction.js', [number], { env: { URL: program.url, KEY: program.key, VERBOSE: program.verbose == true, OUTPUT_FOLDER: program.outputFolder, ACCOUNT: program.account } }).on('exit', (code, signal) => {
+      done++;
+      if (code == 0) {
+        outputNumbers += `${number}\n`
+      } else {
+        errorNumbers += `${number}\n`
+      }
+    }).on('error', (err) => {
+      done++;
+      errorNumbers += `${number}\n`
+    });
+  }
+
+  let interval = setInterval(function () {
+    console.log(`done = ${done}, batchNumber = ${batchNumber}, i = ${i}`);
+    if (done >= i + batchNumber) {
+      console.log('Doing it again...')
+      doIt(i + batchNumber);
+      clearInterval(interval);
+    }
+  }, 1000);
+}
+
+setInterval(() => {
+  console.log('Checking if done...');
+  console.log(`${done}/${program.numberOfTransactions}`);
+
+  if (done >= program.numberOfTransactions) {
+    fs.writeFile('./index.csv', outputNumbers, function (err) {
+      if (err) {
+        console.log('Error saving ./index.csv!');
+        console.error(err);
+        process.exit(1);
+      } else {
+        console.log('Successfully saved ./index.csv!');
+        fs.writeFile('./error.csv', errorNumbers, function (err) {
+          if (err) {
+            console.log('Error saving ./error.csv!');
+            console.error(err);
+            process.exit(1);
+          } else {
+            console.log('Successfully saved ./error.csv!');
+            process.exit(0);
+          }
+        });
+      }
+    });
+  }
+}, 1000);
+
+doIt(0);
